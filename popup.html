@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="popup.css" />
+    <title>Cookie Copier</title>
+  </head>
+  <body>
+    <header>
+      <h1>Cookie Copier</h1>
+      <p id="domain" class="domain">—</p>
+    </header>
+
+    <main>
+      <ul id="cookie-list" class="cookie-list" aria-live="polite"></ul>
+      <p id="status" class="status">Cookie listing arrives in the next update.</p>
+    </main>
+
+    <footer>
+      <button id="copy-header" type="button" disabled>Copy as Cookie header</button>
+    </footer>
+
+    <script src="popup.js"></script>
+  </body>
+</html>
