@@ -38,3 +38,6 @@ dist/
 build/
 target/
 coverage/
+
+# Packaged extension (Chrome Web Store upload)
+*.zip
