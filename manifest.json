@@ -1,0 +1,10 @@
+{
+  "manifest_version": 3,
+  "name": "Cookie Copier",
+  "version": "0.1.0",
+  "description": "Copy the current site's cookies as a Cookie header or JSON, filtered to the app's own domain.",
+  "action": {
+    "default_title": "Cookie Copier",
+    "default_popup": "popup.html"
+  }
+}
