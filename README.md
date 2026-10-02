@@ -32,3 +32,21 @@ Each step is one small, self-contained change.
 1. `chrome://extensions` → enable **Developer mode**.
 2. **Load unpacked** → select this folder.
 3. Pin the extension and click it on any site.
+
+## Permissions
+
+The extension asks only for what each feature needs, added step by step rather than up front:
+
+- `cookies` — read the current domain's cookies (added in step 3).
+- `activeTab` / `tabs` — learn which site you're on (step 2).
+- host access — granted per site, on demand, when you first use it on that domain.
+
+## Security
+
+- Cookies are credentials. This tool reads them **locally** and only when you click; it never sends them anywhere, and it has no remote server.
+- `HttpOnly` cookies *are* readable through the `chrome.cookies` API (unlike `document.cookie`), so treat anything you copy as a live secret.
+- Don't run it against systems whose policies forbid exporting session data (e.g. employer-internal tools).
+
+## License
+
+MIT © 2026 Jayden Kang
