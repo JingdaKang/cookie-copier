@@ -15,7 +15,7 @@ Each step is one small, self-contained change.
 | Step | Increment |
 |------|-----------|
 | 1 ✅ | Scaffold: MV3 manifest, popup shell, docs |
-| 2 | Read the active tab's URL; show its host and registrable domain |
+| 2 ✅ | Read the active tab's URL; show its host and registrable domain |
 | 3 | List that domain's cookies (`chrome.cookies.getAll`) |
 | 4 | "Copy as Cookie header" (`name=value; name2=value2`) + toast |
 | 5 | Scope toggle: exact host vs. registrable domain (e.g. `api.site.com` vs. `site.com`) |
