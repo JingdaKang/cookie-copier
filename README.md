@@ -1,6 +1,6 @@
 # Cookie Copier
 
-A Chrome Manifest V3 extension that exports the active site’s cookies. The current version detects the active tab and shows its registrable domain; cookie listing and copying are planned features.
+A Chrome Manifest V3 extension that exports the active site’s cookies. It detects the active tab’s registrable domain, lists the cookies scoped to that domain (apex plus subdomains), and copies them as a single Cookie header.
 
 ## Requirements
 
@@ -19,16 +19,17 @@ Chrome or another compatible Chromium browser. No Node dependency installation o
 | `manifest.json` | Manifest V3 configuration |
 | `popup.html` | Popup markup |
 | `popup.css` | Popup styling |
-| `popup.js` | Popup logic: active-tab domain detection |
+| `popup.js` | Popup logic: domain detection, cookie listing, copy |
 | `domain.js` | URL host and registrable-domain helpers |
+| `cookies.js` | Cookie retrieval and Cookie-header serialization |
 
 ## Configuration and limitations
 
-The manifest declares the `activeTab` permission so the popup can read the current tab’s URL. The popup shows the site’s registrable domain but does not fetch cookies yet. Planned work includes cookie listing, Cookie-header/JSON export, scope controls, and error states.
+The manifest declares `activeTab` to read the current tab’s URL, `cookies` to read stored cookies, and `http://*/*` / `https://*/*` host permissions so cookies can be read for whichever site is open. Registrable-domain detection uses a pragmatic suffix heuristic rather than the full Public Suffix List. Planned work includes JSON export, scope controls, and richer per-cookie detail (flags, expiry).
 
 ## Development and validation
 
-Reload the unpacked extension after changes and inspect the popup console. There is no automated test suite yet. When cookie access is implemented, treat exported cookies as credentials and keep them local.
+Reload the unpacked extension after changes and inspect the popup console. There is no automated test suite yet. Exported cookies are credentials: they stay in your browser and on your clipboard, and the extension sends nothing over the network. Keep them local and clear your clipboard when done.
 
 ## License
 
