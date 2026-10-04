@@ -1,36 +1,62 @@
 // Cookie Copier — popup entry point.
 //
-// Shows the domain of the active tab. Later steps list that domain's cookies
-// and copy them as a Cookie header or JSON.
+// Reads the active tab's registrable domain, then lists that domain's cookies.
+// Copying is wired up in a later step.
 
 import { parseTabUrl } from "./domain.js";
+import { getCookiesForDomain } from "./cookies.js";
 
 async function getActiveTabUrl() {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   return tab?.url ?? "";
 }
 
-function render({ host, domain }) {
-  const domainEl = document.getElementById("domain");
+function renderDomain(domain) {
+  document.getElementById("domain").textContent = domain || "—";
+}
+
+function renderCookies(cookies) {
+  const listEl = document.getElementById("cookie-list");
   const statusEl = document.getElementById("status");
-  if (!domain) {
-    domainEl.textContent = "—";
-    statusEl.textContent = "Open a normal web page (http or https) to see its cookies.";
+  listEl.replaceChildren();
+
+  if (cookies.length === 0) {
+    statusEl.textContent = "No cookies found for this domain.";
     return;
   }
-  domainEl.textContent = domain;
-  statusEl.textContent =
-    host === domain
-      ? "Cookie listing arrives in the next update."
-      : `Scoped to ${domain} · page host ${host}.`;
+
+  for (const cookie of cookies) {
+    const li = document.createElement("li");
+    li.className = "cookie";
+
+    const name = document.createElement("span");
+    name.className = "cookie-name";
+    name.textContent = cookie.name;
+
+    const value = document.createElement("span");
+    value.className = "cookie-value";
+    value.textContent = cookie.value;
+
+    li.append(name, value);
+    listEl.append(li);
+  }
+
+  statusEl.textContent = `${cookies.length} cookie${cookies.length === 1 ? "" : "s"}.`;
 }
 
 async function init() {
+  const statusEl = document.getElementById("status");
   try {
-    render(parseTabUrl(await getActiveTabUrl()));
+    const { domain } = parseTabUrl(await getActiveTabUrl());
+    renderDomain(domain);
+    if (!domain) {
+      statusEl.textContent = "Open a normal web page (http or https) to see its cookies.";
+      return;
+    }
+    renderCookies(await getCookiesForDomain(domain));
   } catch (err) {
-    document.getElementById("status").textContent = "Couldn't read the current tab.";
-    console.debug("active tab read failed", err);
+    statusEl.textContent = "Couldn't read cookies for the current tab.";
+    console.debug("cookie read failed", err);
   }
 }
 
