@@ -1,6 +1,6 @@
 # Cookie Copier
 
-A Chrome Manifest V3 extension that exports the active site’s cookies. It detects the active tab’s registrable domain, lists the cookies scoped to that domain (apex plus subdomains), and copies them as a single Cookie header.
+A Chrome Manifest V3 extension that exports the active site’s cookies. It detects the active tab’s registrable domain, lists the cookies scoped to that domain (apex plus subdomains) with their `Secure` / `HttpOnly` / `SameSite` flags, and copies them as a single Cookie header or as pretty-printed JSON.
 
 ## Requirements
 
@@ -21,11 +21,11 @@ Chrome or another compatible Chromium browser. No Node dependency installation o
 | `popup.css` | Popup styling |
 | `popup.js` | Popup logic: domain detection, cookie listing, copy |
 | `domain.js` | URL host and registrable-domain helpers |
-| `cookies.js` | Cookie retrieval and Cookie-header serialization |
+| `cookies.js` | Cookie retrieval and Cookie-header / JSON serialization |
 
 ## Configuration and limitations
 
-The manifest declares `activeTab` to read the current tab’s URL, `cookies` to read stored cookies, and `http://*/*` / `https://*/*` host permissions so cookies can be read for whichever site is open. Registrable-domain detection uses a pragmatic suffix heuristic rather than the full Public Suffix List. Planned work includes JSON export, scope controls, and richer per-cookie detail (flags, expiry).
+The manifest declares `activeTab` to read the current tab’s URL, `cookies` to read stored cookies, and `http://*/*` / `https://*/*` host permissions so cookies can be read for whichever site is open. Registrable-domain detection uses a pragmatic suffix heuristic rather than the full Public Suffix List. Planned work includes scope controls (apex-only vs. subdomains) and download-to-file export.
 
 ## Development and validation
 
