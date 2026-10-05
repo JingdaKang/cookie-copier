@@ -4,7 +4,7 @@
 // Copying is wired up in a later step.
 
 import { parseTabUrl } from "./domain.js";
-import { getCookiesForDomain, toCookieHeader } from "./cookies.js";
+import { getCookiesForDomain, toCookieHeader, toJson } from "./cookies.js";
 
 // Cookies for the active domain, kept so the copy button can serialize them.
 let currentCookies = [];
@@ -21,9 +21,10 @@ function renderDomain(domain) {
 function renderCookies(cookies) {
   const listEl = document.getElementById("cookie-list");
   const statusEl = document.getElementById("status");
-  const copyBtn = document.getElementById("copy-header");
   currentCookies = cookies;
-  copyBtn.disabled = cookies.length === 0;
+  const empty = cookies.length === 0;
+  document.getElementById("copy-header").disabled = empty;
+  document.getElementById("copy-json").disabled = empty;
   listEl.replaceChildren();
 
   if (cookies.length === 0) {
@@ -50,24 +51,35 @@ function renderCookies(cookies) {
   statusEl.textContent = `${cookies.length} cookie${cookies.length === 1 ? "" : "s"}.`;
 }
 
-async function copyHeader() {
+// Briefly replace the status line, then restore it.
+function flashStatus(message) {
   const statusEl = document.getElementById("status");
+  const previous = statusEl.textContent;
+  statusEl.textContent = message;
+  setTimeout(() => {
+    statusEl.textContent = previous;
+  }, 1500);
+}
+
+// Serialize the current cookies with `serialize` and copy the result.
+async function copyWith(serialize, successMessage) {
   try {
-    await navigator.clipboard.writeText(toCookieHeader(currentCookies));
-    const previous = statusEl.textContent;
-    statusEl.textContent = "Copied Cookie header to clipboard.";
-    setTimeout(() => {
-      statusEl.textContent = previous;
-    }, 1500);
+    await navigator.clipboard.writeText(serialize(currentCookies));
+    flashStatus(successMessage);
   } catch (err) {
-    statusEl.textContent = "Couldn't copy to the clipboard.";
+    document.getElementById("status").textContent = "Couldn't copy to the clipboard.";
     console.debug("clipboard write failed", err);
   }
 }
 
 async function init() {
   const statusEl = document.getElementById("status");
-  document.getElementById("copy-header").addEventListener("click", copyHeader);
+  document
+    .getElementById("copy-header")
+    .addEventListener("click", () => copyWith(toCookieHeader, "Copied Cookie header to clipboard."));
+  document
+    .getElementById("copy-json")
+    .addEventListener("click", () => copyWith(toJson, "Copied JSON to clipboard."));
   try {
     const { domain } = parseTabUrl(await getActiveTabUrl());
     renderDomain(domain);
