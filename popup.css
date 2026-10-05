@@ -71,6 +71,22 @@ header h1 {
   word-break: break-all;
 }
 
+.cookie-flags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 3px;
+}
+
+.flag {
+  font-size: 11px;
+  line-height: 1.4;
+  padding: 0 6px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--muted);
+}
+
 .status {
   color: var(--muted);
   margin: 8px 0;

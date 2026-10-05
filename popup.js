@@ -18,6 +18,28 @@ function renderDomain(domain) {
   document.getElementById("domain").textContent = domain || "—";
 }
 
+// A row of badges for a cookie's security flags, or null when it has none.
+// SameSite "unspecified"/"no_restriction" are treated as no explicit flag.
+function buildFlags(cookie) {
+  const labels = [];
+  if (cookie.secure) labels.push("Secure");
+  if (cookie.httpOnly) labels.push("HttpOnly");
+  if (cookie.sameSite === "lax") labels.push("SameSite=Lax");
+  else if (cookie.sameSite === "strict") labels.push("SameSite=Strict");
+
+  if (labels.length === 0) return null;
+
+  const row = document.createElement("span");
+  row.className = "cookie-flags";
+  for (const label of labels) {
+    const badge = document.createElement("span");
+    badge.className = "flag";
+    badge.textContent = label;
+    row.append(badge);
+  }
+  return row;
+}
+
 function renderCookies(cookies) {
   const listEl = document.getElementById("cookie-list");
   const statusEl = document.getElementById("status");
@@ -45,6 +67,10 @@ function renderCookies(cookies) {
     value.textContent = cookie.value;
 
     li.append(name, value);
+
+    const flags = buildFlags(cookie);
+    if (flags) li.append(flags);
+
     listEl.append(li);
   }
 
