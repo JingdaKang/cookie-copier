@@ -25,3 +25,20 @@ export async function getCookiesForDomain(domain) {
 export function toCookieHeader(cookies) {
   return cookies.map((cookie) => `${cookie.name}=${cookie.value}`).join("; ");
 }
+
+// Serialize cookies to a pretty-printed JSON array, keeping the fields that
+// matter for inspection and re-import and dropping browser-internal ones.
+export function toJson(cookies) {
+  const exported = cookies.map((cookie) => ({
+    name: cookie.name,
+    value: cookie.value,
+    domain: cookie.domain,
+    path: cookie.path,
+    secure: cookie.secure,
+    httpOnly: cookie.httpOnly,
+    sameSite: cookie.sameSite,
+    session: cookie.session,
+    expirationDate: cookie.expirationDate ?? null,
+  }));
+  return JSON.stringify(exported, null, 2);
+}
