@@ -6,8 +6,10 @@
 import { parseTabUrl } from "./domain.js";
 import { getCookiesForDomain, toCookieHeader, toJson } from "./cookies.js";
 
-// Cookies for the active domain, kept so the copy button can serialize them.
+// Cookies for the active domain, kept so the copy/download actions can
+// serialize them, and the domain, used to name the downloaded file.
 let currentCookies = [];
+let currentDomain = "";
 
 async function getActiveTabUrl() {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
@@ -47,6 +49,7 @@ function renderCookies(cookies) {
   const empty = cookies.length === 0;
   document.getElementById("copy-header").disabled = empty;
   document.getElementById("copy-json").disabled = empty;
+  document.getElementById("download-json").disabled = empty;
   listEl.replaceChildren();
 
   if (cookies.length === 0) {
@@ -98,6 +101,27 @@ async function copyWith(serialize, successMessage) {
   }
 }
 
+// A safe-ish file name for the current domain, e.g. "cookies-example.com-2026-10-06.json".
+function downloadFileName() {
+  const safeDomain = (currentDomain || "cookies").replace(/[^a-z0-9.-]/gi, "_");
+  const date = new Date().toISOString().slice(0, 10);
+  return `cookies-${safeDomain}-${date}.json`;
+}
+
+// Save the current cookies as a JSON file via a transient object URL. This
+// uses a Blob download rather than the downloads API, so no extra permission
+// is needed.
+function downloadJson() {
+  const blob = new Blob([toJson(currentCookies)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = downloadFileName();
+  link.click();
+  URL.revokeObjectURL(url);
+  flashStatus("Saved cookies to a JSON file.");
+}
+
 async function init() {
   const statusEl = document.getElementById("status");
   document
@@ -106,8 +130,10 @@ async function init() {
   document
     .getElementById("copy-json")
     .addEventListener("click", () => copyWith(toJson, "Copied JSON to clipboard."));
+  document.getElementById("download-json").addEventListener("click", downloadJson);
   try {
     const { domain } = parseTabUrl(await getActiveTabUrl());
+    currentDomain = domain;
     renderDomain(domain);
     if (!domain) {
       statusEl.textContent = "Open a normal web page (http or https) to see its cookies.";
