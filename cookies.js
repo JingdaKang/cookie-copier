@@ -6,18 +6,21 @@
 // drops anything that only happens to end with the same text but is not a true
 // subdomain (e.g. "notexample.com" against "example.com").
 
-// Does a cookie's domain belong to `domain` or one of its subdomains?
-function belongsToDomain(cookieDomain, domain) {
+// Does a cookie's domain fall within the requested scope? With subdomains
+// included, the apex and any subdomain match; otherwise only the exact apex.
+export function matchesScope(cookieDomain, domain, includeSubdomains) {
   const host = cookieDomain.replace(/^\./, "").toLowerCase();
-  return host === domain || host.endsWith("." + domain);
+  if (host === domain) return true;
+  return includeSubdomains && host.endsWith("." + domain);
 }
 
 // All cookies for a registrable domain, sorted by name for a stable listing.
-export async function getCookiesForDomain(domain) {
+// With `includeSubdomains` false, only cookies set on the exact apex are kept.
+export async function getCookiesForDomain(domain, { includeSubdomains = true } = {}) {
   if (!domain) return [];
   const cookies = await chrome.cookies.getAll({ domain });
   return cookies
-    .filter((cookie) => belongsToDomain(cookie.domain, domain))
+    .filter((cookie) => matchesScope(cookie.domain, domain, includeSubdomains))
     .sort((a, b) => a.name.localeCompare(b.name));
 }
 
