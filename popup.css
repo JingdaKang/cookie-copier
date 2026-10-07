@@ -60,6 +60,12 @@ header h1 {
   color: var(--fg);
 }
 
+.refresh {
+  align-self: flex-start;
+  width: auto;
+  padding: 6px 12px;
+}
+
 .toggle {
   display: flex;
   align-items: center;

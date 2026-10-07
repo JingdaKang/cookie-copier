@@ -197,6 +197,7 @@ async function init() {
   document.getElementById("download-json").addEventListener("click", downloadJson);
   document.getElementById("include-subdomains").addEventListener("change", load);
   document.getElementById("filter").addEventListener("input", applyFilter);
+  document.getElementById("refresh").addEventListener("click", load);
 
   const { domain } = parseTabUrl(await getActiveTabUrl());
   currentDomain = domain;
