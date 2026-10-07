@@ -42,6 +42,10 @@ function buildFlags(cookie) {
   return row;
 }
 
+function includeSubdomains() {
+  return document.getElementById("include-subdomains").checked;
+}
+
 function renderCookies(cookies) {
   const listEl = document.getElementById("cookie-list");
   const statusEl = document.getElementById("status");
@@ -53,7 +57,8 @@ function renderCookies(cookies) {
   listEl.replaceChildren();
 
   if (cookies.length === 0) {
-    statusEl.textContent = "No cookies found for this domain.";
+    const scopeNote = includeSubdomains() ? "" : " (apex only)";
+    statusEl.textContent = `No cookies found for this domain${scopeNote}.`;
     return;
   }
 
@@ -77,7 +82,8 @@ function renderCookies(cookies) {
     listEl.append(li);
   }
 
-  statusEl.textContent = `${cookies.length} cookie${cookies.length === 1 ? "" : "s"}.`;
+  const scopeNote = includeSubdomains() ? "" : " on the apex";
+  statusEl.textContent = `${cookies.length} cookie${cookies.length === 1 ? "" : "s"}${scopeNote}.`;
 }
 
 // Briefly replace the status line, then restore it.
@@ -122,8 +128,25 @@ function downloadJson() {
   flashStatus("Saved cookies to a JSON file.");
 }
 
-async function init() {
+// Fetch and render cookies for the current domain at the selected scope.
+async function load() {
   const statusEl = document.getElementById("status");
+  if (!currentDomain) {
+    statusEl.textContent = "Open a normal web page (http or https) to see its cookies.";
+    return;
+  }
+  try {
+    const cookies = await getCookiesForDomain(currentDomain, {
+      includeSubdomains: includeSubdomains(),
+    });
+    renderCookies(cookies);
+  } catch (err) {
+    statusEl.textContent = "Couldn't read cookies for the current tab.";
+    console.debug("cookie read failed", err);
+  }
+}
+
+async function init() {
   document
     .getElementById("copy-header")
     .addEventListener("click", () => copyWith(toCookieHeader, "Copied Cookie header to clipboard."));
@@ -131,19 +154,12 @@ async function init() {
     .getElementById("copy-json")
     .addEventListener("click", () => copyWith(toJson, "Copied JSON to clipboard."));
   document.getElementById("download-json").addEventListener("click", downloadJson);
-  try {
-    const { domain } = parseTabUrl(await getActiveTabUrl());
-    currentDomain = domain;
-    renderDomain(domain);
-    if (!domain) {
-      statusEl.textContent = "Open a normal web page (http or https) to see its cookies.";
-      return;
-    }
-    renderCookies(await getCookiesForDomain(domain));
-  } catch (err) {
-    statusEl.textContent = "Couldn't read cookies for the current tab.";
-    console.debug("cookie read failed", err);
-  }
+  document.getElementById("include-subdomains").addEventListener("change", load);
+
+  const { domain } = parseTabUrl(await getActiveTabUrl());
+  currentDomain = domain;
+  renderDomain(domain);
+  await load();
 }
 
 // Module scripts are deferred, so the DOM is parsed by the time this runs.
