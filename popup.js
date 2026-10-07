@@ -85,15 +85,26 @@ function renderCookies(cookies) {
     const li = document.createElement("li");
     li.className = "cookie";
 
+    const head = document.createElement("div");
+    head.className = "cookie-head";
+
     const name = document.createElement("span");
     name.className = "cookie-name";
     name.textContent = cookie.name;
+
+    const copyValue = document.createElement("button");
+    copyValue.type = "button";
+    copyValue.className = "copy-value";
+    copyValue.textContent = "Copy value";
+    copyValue.addEventListener("click", () => copyCookieValue(cookie.value));
+
+    head.append(name, copyValue);
 
     const value = document.createElement("span");
     value.className = "cookie-value";
     value.textContent = cookie.value;
 
-    li.append(name, value);
+    li.append(head, value);
 
     const flags = buildFlags(cookie);
     if (flags) li.append(flags);
@@ -113,6 +124,17 @@ function flashStatus(message) {
   setTimeout(() => {
     statusEl.textContent = previous;
   }, 1500);
+}
+
+// Copy a single cookie's value to the clipboard.
+async function copyCookieValue(value) {
+  try {
+    await navigator.clipboard.writeText(value);
+    flashStatus("Copied cookie value to clipboard.");
+  } catch (err) {
+    document.getElementById("status").textContent = "Couldn't copy to the clipboard.";
+    console.debug("clipboard write failed", err);
+  }
 }
 
 // Serialize the current cookies with `serialize` and copy the result.

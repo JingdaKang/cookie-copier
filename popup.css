@@ -85,10 +85,27 @@ header h1 {
   border-bottom: 1px solid var(--border);
 }
 
+.cookie-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
 .cookie-name {
   font-weight: 600;
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   word-break: break-all;
+}
+
+.copy-value {
+  flex: 0 0 auto;
+  width: auto;
+  padding: 2px 8px;
+  font-size: 11px;
+  background: transparent;
+  color: var(--accent);
+  border: 1px solid var(--border);
 }
 
 .cookie-value {
