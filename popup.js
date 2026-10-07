@@ -6,8 +6,10 @@
 import { parseTabUrl } from "./domain.js";
 import { getCookiesForDomain, toCookieHeader, toJson } from "./cookies.js";
 
-// Cookies for the active domain, kept so the copy/download actions can
-// serialize them, and the domain, used to name the downloaded file.
+// allCookies is the full fetch for the current domain and scope; currentCookies
+// is the filtered subset currently shown, which the copy/download actions
+// serialize. currentDomain is used to name the downloaded file.
+let allCookies = [];
 let currentCookies = [];
 let currentDomain = "";
 
@@ -46,6 +48,19 @@ function includeSubdomains() {
   return document.getElementById("include-subdomains").checked;
 }
 
+function filterQuery() {
+  return document.getElementById("filter").value.trim().toLowerCase();
+}
+
+// Re-render the list from allCookies, applying the current name filter.
+function applyFilter() {
+  const query = filterQuery();
+  const visible = query
+    ? allCookies.filter((cookie) => cookie.name.toLowerCase().includes(query))
+    : allCookies;
+  renderCookies(visible);
+}
+
 function renderCookies(cookies) {
   const listEl = document.getElementById("cookie-list");
   const statusEl = document.getElementById("status");
@@ -57,8 +72,12 @@ function renderCookies(cookies) {
   listEl.replaceChildren();
 
   if (cookies.length === 0) {
-    const scopeNote = includeSubdomains() ? "" : " (apex only)";
-    statusEl.textContent = `No cookies found for this domain${scopeNote}.`;
+    if (filterQuery()) {
+      statusEl.textContent = "No cookies match the filter.";
+    } else {
+      const scopeNote = includeSubdomains() ? "" : " (apex only)";
+      statusEl.textContent = `No cookies found for this domain${scopeNote}.`;
+    }
     return;
   }
 
@@ -136,10 +155,10 @@ async function load() {
     return;
   }
   try {
-    const cookies = await getCookiesForDomain(currentDomain, {
+    allCookies = await getCookiesForDomain(currentDomain, {
       includeSubdomains: includeSubdomains(),
     });
-    renderCookies(cookies);
+    applyFilter();
   } catch (err) {
     statusEl.textContent = "Couldn't read cookies for the current tab.";
     console.debug("cookie read failed", err);
@@ -155,6 +174,7 @@ async function init() {
     .addEventListener("click", () => copyWith(toJson, "Copied JSON to clipboard."));
   document.getElementById("download-json").addEventListener("click", downloadJson);
   document.getElementById("include-subdomains").addEventListener("change", load);
+  document.getElementById("filter").addEventListener("input", applyFilter);
 
   const { domain } = parseTabUrl(await getActiveTabUrl());
   currentDomain = domain;
