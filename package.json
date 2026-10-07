@@ -1,0 +1,11 @@
+{
+  "name": "cookie-copier",
+  "version": "0.1.0",
+  "description": "Chrome extension that exports the active site's cookies.",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "test": "node --test"
+  },
+  "license": "MIT"
+}
