@@ -29,10 +29,10 @@ export function toCookieHeader(cookies) {
   return cookies.map((cookie) => `${cookie.name}=${cookie.value}`).join("; ");
 }
 
-// Serialize cookies to a pretty-printed JSON array, keeping the fields that
-// matter for inspection and re-import and dropping browser-internal ones.
-export function toJson(cookies) {
-  const exported = cookies.map((cookie) => ({
+// A plain, export-friendly view of a cookie: the fields that matter for
+// inspection and re-import, with browser-internal ones dropped.
+export function toExportObject(cookie) {
+  return {
     name: cookie.name,
     value: cookie.value,
     domain: cookie.domain,
@@ -42,6 +42,10 @@ export function toJson(cookies) {
     sameSite: cookie.sameSite,
     session: cookie.session,
     expirationDate: cookie.expirationDate ?? null,
-  }));
-  return JSON.stringify(exported, null, 2);
+  };
+}
+
+// Serialize cookies to a pretty-printed JSON array of export objects.
+export function toJson(cookies) {
+  return JSON.stringify(cookies.map(toExportObject), null, 2);
 }
