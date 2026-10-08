@@ -120,6 +120,12 @@ header h1 {
   word-break: break-all;
 }
 
+.cookie-meta {
+  margin-top: 2px;
+  font-size: 11px;
+  color: var(--muted);
+}
+
 .cookie-flags {
   display: flex;
   flex-wrap: wrap;

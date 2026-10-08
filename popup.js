@@ -4,7 +4,7 @@
 // Copying is wired up in a later step.
 
 import { parseTabUrl } from "./domain.js";
-import { getCookiesForDomain, toCookieHeader, toJson, toCsv } from "./cookies.js";
+import { getCookiesForDomain, toCookieHeader, toJson, toCsv, formatExpiry } from "./cookies.js";
 
 // allCookies is the full fetch for the current domain and scope; currentCookies
 // is the filtered subset currently shown, which the copy/download actions
@@ -105,7 +105,11 @@ function renderCookies(cookies) {
     value.className = "cookie-value";
     value.textContent = cookie.value;
 
-    li.append(head, value);
+    const meta = document.createElement("span");
+    meta.className = "cookie-meta";
+    meta.textContent = `${cookie.path} · ${formatExpiry(cookie)}`;
+
+    li.append(head, value, meta);
 
     const flags = buildFlags(cookie);
     if (flags) li.append(flags);
