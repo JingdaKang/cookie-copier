@@ -49,3 +49,26 @@ export function toExportObject(cookie) {
 export function toJson(cookies) {
   return JSON.stringify(cookies.map(toExportObject), null, 2);
 }
+
+// Column order for CSV export, matching the export object's keys.
+const CSV_COLUMNS = [
+  "name", "value", "domain", "path",
+  "secure", "httpOnly", "sameSite", "session", "expirationDate",
+];
+
+// Quote a CSV field when it contains a comma, quote, or line break, doubling
+// any embedded quotes (RFC 4180). null/undefined become an empty field.
+function csvField(value) {
+  const text = value == null ? "" : String(value);
+  return /[",\r\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+}
+
+// Serialize cookies to CSV with a header row, using the export fields.
+export function toCsv(cookies) {
+  const rows = [CSV_COLUMNS.join(",")];
+  for (const cookie of cookies) {
+    const exported = toExportObject(cookie);
+    rows.push(CSV_COLUMNS.map((column) => csvField(exported[column])).join(","));
+  }
+  return rows.join("\r\n");
+}
