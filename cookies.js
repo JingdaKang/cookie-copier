@@ -29,6 +29,15 @@ export function toCookieHeader(cookies) {
   return cookies.map((cookie) => `${cookie.name}=${cookie.value}`).join("; ");
 }
 
+// A human-readable expiry for a cookie: "Session" when it has no persistent
+// expiry, otherwise "Expires <UTC date>". Chrome reports expirationDate in
+// seconds since the epoch.
+export function formatExpiry(cookie) {
+  if (cookie.session || cookie.expirationDate == null) return "Session";
+  const date = new Date(cookie.expirationDate * 1000).toISOString().slice(0, 10);
+  return `Expires ${date}`;
+}
+
 // A plain, export-friendly view of a cookie: the fields that matter for
 // inspection and re-import, with browser-internal ones dropped.
 export function toExportObject(cookie) {
