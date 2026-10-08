@@ -4,7 +4,7 @@
 // Copying is wired up in a later step.
 
 import { parseTabUrl } from "./domain.js";
-import { getCookiesForDomain, toCookieHeader, toJson } from "./cookies.js";
+import { getCookiesForDomain, toCookieHeader, toJson, toCsv } from "./cookies.js";
 
 // allCookies is the full fetch for the current domain and scope; currentCookies
 // is the filtered subset currently shown, which the copy/download actions
@@ -69,6 +69,7 @@ function renderCookies(cookies) {
   document.getElementById("copy-header").disabled = empty;
   document.getElementById("copy-json").disabled = empty;
   document.getElementById("download-json").disabled = empty;
+  document.getElementById("download-csv").disabled = empty;
   listEl.replaceChildren();
 
   if (cookies.length === 0) {
@@ -149,24 +150,31 @@ async function copyWith(serialize, successMessage) {
 }
 
 // A safe-ish file name for the current domain, e.g. "cookies-example.com-2026-10-06.json".
-function downloadFileName() {
+function downloadFileName(extension) {
   const safeDomain = (currentDomain || "cookies").replace(/[^a-z0-9.-]/gi, "_");
   const date = new Date().toISOString().slice(0, 10);
-  return `cookies-${safeDomain}-${date}.json`;
+  return `cookies-${safeDomain}-${date}.${extension}`;
 }
 
-// Save the current cookies as a JSON file via a transient object URL. This
-// uses a Blob download rather than the downloads API, so no extra permission
-// is needed.
-function downloadJson() {
-  const blob = new Blob([toJson(currentCookies)], { type: "application/json" });
+// Save text as a file via a transient object URL. This uses a Blob download
+// rather than the downloads API, so no extra permission is needed.
+function downloadBlob(text, mimeType, extension, successMessage) {
+  const blob = new Blob([text], { type: mimeType });
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
-  link.download = downloadFileName();
+  link.download = downloadFileName(extension);
   link.click();
   URL.revokeObjectURL(url);
-  flashStatus("Saved cookies to a JSON file.");
+  flashStatus(successMessage);
+}
+
+function downloadJson() {
+  downloadBlob(toJson(currentCookies), "application/json", "json", "Saved cookies to a JSON file.");
+}
+
+function downloadCsv() {
+  downloadBlob(toCsv(currentCookies), "text/csv", "csv", "Saved cookies to a CSV file.");
 }
 
 // Fetch and render cookies for the current domain at the selected scope.
@@ -195,6 +203,7 @@ async function init() {
     .getElementById("copy-json")
     .addEventListener("click", () => copyWith(toJson, "Copied JSON to clipboard."));
   document.getElementById("download-json").addEventListener("click", downloadJson);
+  document.getElementById("download-csv").addEventListener("click", downloadCsv);
   document.getElementById("include-subdomains").addEventListener("change", load);
   document.getElementById("filter").addEventListener("input", applyFilter);
   document.getElementById("refresh").addEventListener("click", load);
