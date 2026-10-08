@@ -7,6 +7,7 @@ import {
   toCookieHeader,
   toExportObject,
   toJson,
+  toCsv,
 } from "../cookies.js";
 
 const fixtures = [
@@ -101,4 +102,40 @@ test("toJson emits a pretty-printed array", () => {
   const parsed = JSON.parse(json);
   assert.equal(parsed.length, 1);
   assert.equal(parsed[0].name, "a");
+});
+
+test("toCsv emits a header row and the expected columns", () => {
+  const csv = toCsv([
+    {
+      name: "sid",
+      value: "ok",
+      domain: "example.com",
+      path: "/",
+      secure: true,
+      httpOnly: false,
+      sameSite: "lax",
+      session: true,
+    },
+  ]);
+  const lines = csv.split("\r\n");
+  assert.equal(lines[0], "name,value,domain,path,secure,httpOnly,sameSite,session,expirationDate");
+  assert.equal(lines[1], "sid,ok,example.com,/,true,false,lax,true,");
+});
+
+test("toCsv quotes fields with commas, quotes, or newlines", () => {
+  const csv = toCsv([
+    {
+      name: "weird",
+      value: 'a,b"c\nd',
+      domain: "example.com",
+      path: "/",
+      secure: false,
+      httpOnly: true,
+      sameSite: "no_restriction",
+      session: false,
+      expirationDate: 123,
+    },
+  ]);
+  const row = csv.split("\r\n")[1];
+  assert.equal(row, 'weird,"a,b""c\nd",example.com,/,false,true,no_restriction,false,123');
 });
