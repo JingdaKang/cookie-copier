@@ -52,13 +52,26 @@ function filterQuery() {
   return document.getElementById("filter").value.trim().toLowerCase();
 }
 
-// Re-render the list from allCookies, applying the current name filter.
+// Return a copy of `cookies` sorted by the selected key. Domain sort falls
+// back to name so the order is stable within a domain.
+function sortCookies(cookies) {
+  const key = document.getElementById("sort").value;
+  const sorted = [...cookies];
+  if (key === "domain") {
+    sorted.sort((a, b) => a.domain.localeCompare(b.domain) || a.name.localeCompare(b.name));
+  } else {
+    sorted.sort((a, b) => a.name.localeCompare(b.name));
+  }
+  return sorted;
+}
+
+// Re-render the list from allCookies, applying the current name filter and sort.
 function applyFilter() {
   const query = filterQuery();
   const visible = query
     ? allCookies.filter((cookie) => cookie.name.toLowerCase().includes(query))
     : allCookies;
-  renderCookies(visible);
+  renderCookies(sortCookies(visible));
 }
 
 function renderCookies(cookies) {
@@ -210,6 +223,7 @@ async function init() {
   document.getElementById("download-csv").addEventListener("click", downloadCsv);
   document.getElementById("include-subdomains").addEventListener("change", load);
   document.getElementById("filter").addEventListener("input", applyFilter);
+  document.getElementById("sort").addEventListener("change", applyFilter);
   document.getElementById("refresh").addEventListener("click", load);
 
   const { domain } = parseTabUrl(await getActiveTabUrl());

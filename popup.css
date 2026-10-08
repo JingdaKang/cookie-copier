@@ -60,6 +60,23 @@ header h1 {
   color: var(--fg);
 }
 
+.sort-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--muted);
+}
+
+.sort {
+  flex: 1 1 auto;
+  padding: 5px 8px;
+  font-size: 13px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--fg);
+}
+
 .refresh {
   align-self: flex-start;
   width: auto;
