@@ -8,6 +8,7 @@ import {
   toExportObject,
   toJson,
   toCsv,
+  formatExpiry,
 } from "../cookies.js";
 
 const fixtures = [
@@ -120,6 +121,16 @@ test("toCsv emits a header row and the expected columns", () => {
   const lines = csv.split("\r\n");
   assert.equal(lines[0], "name,value,domain,path,secure,httpOnly,sameSite,session,expirationDate");
   assert.equal(lines[1], "sid,ok,example.com,/,true,false,lax,true,");
+});
+
+test("formatExpiry reports session cookies as Session", () => {
+  assert.equal(formatExpiry({ session: true }), "Session");
+  assert.equal(formatExpiry({ session: false }), "Session");
+  assert.equal(formatExpiry({ expirationDate: null }), "Session");
+});
+
+test("formatExpiry reports the UTC date for persistent cookies", () => {
+  assert.equal(formatExpiry({ session: false, expirationDate: 1700000000 }), "Expires 2023-11-14");
 });
 
 test("toCsv quotes fields with commas, quotes, or newlines", () => {
