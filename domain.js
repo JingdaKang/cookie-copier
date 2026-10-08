@@ -7,11 +7,17 @@
 // Multi-label public suffixes, so "a.example.co.uk" collapses to
 // "example.co.uk" rather than "co.uk".
 const MULTI_LABEL_SUFFIXES = new Set([
-  "co.uk", "org.uk", "gov.uk", "ac.uk", "me.uk",
-  "com.au", "net.au", "org.au", "gov.au", "edu.au",
-  "com.cn", "net.cn", "org.cn", "gov.cn",
-  "co.jp", "or.jp", "ne.jp", "go.jp",
-  "com.br", "com.sg", "com.hk", "co.in", "co.nz", "co.za",
+  "co.uk", "org.uk", "gov.uk", "ac.uk", "me.uk", "ltd.uk", "plc.uk",
+  "com.au", "net.au", "org.au", "gov.au", "edu.au", "id.au",
+  "com.cn", "net.cn", "org.cn", "gov.cn", "edu.cn", "ac.cn",
+  "co.jp", "or.jp", "ne.jp", "go.jp", "ac.jp", "ad.jp",
+  "co.kr", "or.kr", "ne.kr", "go.kr", "re.kr",
+  "com.br", "net.br", "org.br", "gov.br", "edu.br",
+  "com.mx", "com.ar", "com.co", "com.tr", "com.tw", "com.pl",
+  "com.ua", "com.vn", "com.ph", "com.my", "com.pk", "com.eg",
+  "com.sg", "com.hk", "co.in", "co.nz", "co.za",
+  "co.id", "co.th", "co.il", "co.ke",
+  "or.id", "ac.id", "go.id", "net.id",
 ]);
 
 // The host of an http(s) URL, lowercased. Other schemes (chrome:, about:,
