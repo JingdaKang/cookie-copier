@@ -1,13 +1,14 @@
 # Cookie Copier
 
-A Chrome Manifest V3 extension that exports the active site’s cookies. It detects the active tab’s registrable domain, lists the cookies scoped to that domain with their `Secure` / `HttpOnly` / `SameSite` flags, and copies them as a single Cookie header or as pretty-printed JSON — or saves the JSON to a file.
+A Chrome Manifest V3 extension that exports the active site’s cookies. It detects the active tab’s registrable domain, lists the cookies scoped to that domain with their path, expiry, and `Secure` / `HttpOnly` / `SameSite` flags, and copies or downloads them as a Cookie header, JSON, or CSV.
 
 ## Features
 
 - **Scope toggle** — include subdomains (default) or restrict to the exact apex domain.
 - **Name filter** — narrow the list to cookies whose name matches a search term.
-- **Per-cookie copy** — copy an individual cookie’s value.
-- **Bulk export** — copy all shown cookies as a Cookie header or JSON, or download the JSON file.
+- **Sort** — order the list by cookie name or by domain.
+- **Per-cookie detail** — each row shows the path, expiry, and security flags, with a button to copy its value.
+- **Bulk export** — copy the shown cookies as a Cookie header or JSON, or download them as a JSON or CSV file.
 - **Refresh** — re-read cookies without reopening the popup.
 
 ## Requirements
@@ -29,12 +30,12 @@ Chrome or another compatible Chromium browser. No Node dependency installation o
 | `popup.css` | Popup styling |
 | `popup.js` | Popup logic: domain detection, listing, filter, copy, download |
 | `domain.js` | URL host and registrable-domain helpers |
-| `cookies.js` | Cookie retrieval, scope filtering, and serialization |
+| `cookies.js` | Cookie retrieval, scope filtering, and header/JSON/CSV serialization |
 | `tests/` | Node test-runner unit tests for the pure helpers |
 
 ## Configuration and limitations
 
-The manifest declares `activeTab` to read the current tab’s URL, `cookies` to read stored cookies, and `http://*/*` / `https://*/*` host permissions so cookies can be read for whichever site is open. The JSON file is saved via an in-popup Blob download, so no `downloads` permission is required. Registrable-domain detection uses a pragmatic suffix heuristic rather than the full Public Suffix List, which remains planned work.
+The manifest declares `activeTab` to read the current tab’s URL, `cookies` to read stored cookies, and `http://*/*` / `https://*/*` host permissions so cookies can be read for whichever site is open. JSON and CSV files are saved via an in-popup Blob download, so no `downloads` permission is required. Registrable-domain detection uses a pragmatic suffix heuristic that covers common country-code suffixes rather than the full Public Suffix List, which remains planned work.
 
 ## Testing
 
