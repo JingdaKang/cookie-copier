@@ -5,6 +5,7 @@
 
 import { parseTabUrl } from "./domain.js";
 import { getCookiesForDomain, toCookieHeader, toJson, toCsv, formatExpiry } from "./cookies.js";
+import { loadSettings, saveSettings } from "./settings.js";
 
 // allCookies is the full fetch for the current domain and scope; currentCookies
 // is the filtered subset currently shown, which the copy/download actions
@@ -223,10 +224,21 @@ async function init() {
     .addEventListener("click", () => copyWith(toJson, "Copied JSON to clipboard."));
   document.getElementById("download-json").addEventListener("click", downloadJson);
   document.getElementById("download-csv").addEventListener("click", downloadCsv);
-  document.getElementById("include-subdomains").addEventListener("change", load);
+  document.getElementById("include-subdomains").addEventListener("change", () => {
+    saveSettings({ includeSubdomains: includeSubdomains() });
+    load();
+  });
   document.getElementById("filter").addEventListener("input", applyFilter);
-  document.getElementById("sort").addEventListener("change", applyFilter);
+  document.getElementById("sort").addEventListener("change", () => {
+    saveSettings({ sort: document.getElementById("sort").value });
+    applyFilter();
+  });
   document.getElementById("refresh").addEventListener("click", load);
+
+  // Restore persisted settings before the first load so the fetch uses them.
+  const settings = await loadSettings();
+  document.getElementById("include-subdomains").checked = settings.includeSubdomains;
+  document.getElementById("sort").value = settings.sort;
 
   const { domain } = parseTabUrl(await getActiveTabUrl());
   currentDomain = domain;
