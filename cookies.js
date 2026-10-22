@@ -61,8 +61,15 @@ export function toJson(cookies) {
 
 // Column order for CSV export, matching the export object's keys.
 const CSV_COLUMNS = [
-  "name", "value", "domain", "path",
-  "secure", "httpOnly", "sameSite", "session", "expirationDate",
+  "name",
+  "value",
+  "domain",
+  "path",
+  "secure",
+  "httpOnly",
+  "sameSite",
+  "session",
+  "expirationDate",
 ];
 
 // Quote a CSV field when it contains a comma, quote, or line break, doubling

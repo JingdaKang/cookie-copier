@@ -215,7 +215,9 @@ async function load() {
 async function init() {
   document
     .getElementById("copy-header")
-    .addEventListener("click", () => copyWith(toCookieHeader, "Copied Cookie header to clipboard."));
+    .addEventListener("click", () =>
+      copyWith(toCookieHeader, "Copied Cookie header to clipboard."),
+    );
   document
     .getElementById("copy-json")
     .addEventListener("click", () => copyWith(toJson, "Copied JSON to clipboard."));

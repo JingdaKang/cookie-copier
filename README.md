@@ -23,15 +23,15 @@ Chrome or another compatible Chromium browser. No Node dependency installation o
 
 ## Project structure
 
-| Path | Purpose |
-| --- | --- |
-| `manifest.json` | Manifest V3 configuration |
-| `popup.html` | Popup markup |
-| `popup.css` | Popup styling |
-| `popup.js` | Popup logic: domain detection, listing, filter, copy, download |
-| `domain.js` | URL host and registrable-domain helpers |
-| `cookies.js` | Cookie retrieval, scope filtering, and header/JSON/CSV serialization |
-| `tests/` | Node test-runner unit tests for the pure helpers |
+| Path            | Purpose                                                              |
+| --------------- | -------------------------------------------------------------------- |
+| `manifest.json` | Manifest V3 configuration                                            |
+| `popup.html`    | Popup markup                                                         |
+| `popup.css`     | Popup styling                                                        |
+| `popup.js`      | Popup logic: domain detection, listing, filter, copy, download       |
+| `domain.js`     | URL host and registrable-domain helpers                              |
+| `cookies.js`    | Cookie retrieval, scope filtering, and header/JSON/CSV serialization |
+| `tests/`        | Node test-runner unit tests for the pure helpers                     |
 
 ## Configuration and limitations
 
