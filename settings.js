@@ -23,8 +23,11 @@ export function normalizeSettings(stored) {
 }
 
 // Prefer synced storage, fall back to local, tolerate neither being present.
+// Read via globalThis so a missing `chrome` global resolves to undefined
+// rather than throwing a ReferenceError (e.g. under tests).
 function storageArea() {
-  return chrome?.storage?.sync ?? chrome?.storage?.local ?? null;
+  const api = globalThis.chrome;
+  return api?.storage?.sync ?? api?.storage?.local ?? null;
 }
 
 export async function loadSettings() {
