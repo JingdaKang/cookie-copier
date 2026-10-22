@@ -6,13 +6,21 @@
 import { parseTabUrl } from "./domain.js";
 import { getCookiesForDomain, toCookieHeader, toJson, toCsv, formatExpiry } from "./cookies.js";
 import { loadSettings, saveSettings } from "./settings.js";
+import { Selection } from "./selection.js";
 
 // allCookies is the full fetch for the current domain and scope; currentCookies
-// is the filtered subset currently shown, which the copy/download actions
-// serialize. currentDomain is used to name the downloaded file.
+// is the filtered subset currently shown. currentDomain is used to name the
+// downloaded file. selection tracks checked cookies for partial export.
 let allCookies = [];
 let currentCookies = [];
 let currentDomain = "";
+const selection = new Selection();
+
+// The cookies an export acts on: the checked subset when any are checked,
+// otherwise everything currently shown.
+function exportCookies() {
+  return selection.size > 0 ? selection.pick(allCookies) : currentCookies;
+}
 
 async function getActiveTabUrl() {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
@@ -87,6 +95,7 @@ function renderCookies(cookies) {
   listEl.replaceChildren();
 
   if (cookies.length === 0) {
+    refreshSelectionUI();
     if (filterQuery()) {
       statusEl.textContent = "No cookies match the filter.";
     } else {
@@ -103,9 +112,23 @@ function renderCookies(cookies) {
     const head = document.createElement("div");
     head.className = "cookie-head";
 
+    const left = document.createElement("label");
+    left.className = "cookie-head-left";
+
+    const select = document.createElement("input");
+    select.type = "checkbox";
+    select.className = "cookie-select";
+    select.checked = selection.has(cookie);
+    select.addEventListener("change", () => {
+      selection.toggle(cookie);
+      refreshSelectionUI();
+    });
+
     const name = document.createElement("span");
     name.className = "cookie-name";
     name.textContent = cookie.name;
+
+    left.append(select, name);
 
     const copyValue = document.createElement("button");
     copyValue.type = "button";
@@ -113,7 +136,7 @@ function renderCookies(cookies) {
     copyValue.textContent = "Copy value";
     copyValue.addEventListener("click", () => copyCookieValue(cookie.value));
 
-    head.append(name, copyValue);
+    head.append(left, copyValue);
 
     const value = document.createElement("span");
     value.className = "cookie-value";
@@ -131,8 +154,20 @@ function renderCookies(cookies) {
     listEl.append(li);
   }
 
+  refreshSelectionUI();
   const scopeNote = includeSubdomains() ? "" : " on the apex";
   statusEl.textContent = `${cookies.length} cookie${cookies.length === 1 ? "" : "s"}${scopeNote}.`;
+}
+
+// Sync the select-all checkbox and the selected-count label to the current
+// selection and visible list.
+function refreshSelectionUI() {
+  const selectAll = document.getElementById("select-all");
+  selectAll.disabled = currentCookies.length === 0;
+  selectAll.checked = selection.allSelected(currentCookies);
+  const count = document.getElementById("selected-count");
+  count.textContent =
+    selection.size > 0 ? `${selection.size} selected · exports use selection` : "";
 }
 
 // Briefly replace the status line, then restore it.
@@ -156,10 +191,10 @@ async function copyCookieValue(value) {
   }
 }
 
-// Serialize the current cookies with `serialize` and copy the result.
+// Serialize the export set with `serialize` and copy the result.
 async function copyWith(serialize, successMessage) {
   try {
-    await navigator.clipboard.writeText(serialize(currentCookies));
+    await navigator.clipboard.writeText(serialize(exportCookies()));
     flashStatus(successMessage);
   } catch (err) {
     document.getElementById("status").textContent = "Couldn't copy to the clipboard.";
@@ -188,11 +223,16 @@ function downloadBlob(text, mimeType, extension, successMessage) {
 }
 
 function downloadJson() {
-  downloadBlob(toJson(currentCookies), "application/json", "json", "Saved cookies to a JSON file.");
+  downloadBlob(
+    toJson(exportCookies()),
+    "application/json",
+    "json",
+    "Saved cookies to a JSON file.",
+  );
 }
 
 function downloadCsv() {
-  downloadBlob(toCsv(currentCookies), "text/csv", "csv", "Saved cookies to a CSV file.");
+  downloadBlob(toCsv(exportCookies()), "text/csv", "csv", "Saved cookies to a CSV file.");
 }
 
 // Fetch and render cookies for the current domain at the selected scope.
@@ -206,6 +246,7 @@ async function load() {
     allCookies = await getCookiesForDomain(currentDomain, {
       includeSubdomains: includeSubdomains(),
     });
+    selection.retain(allCookies);
     applyFilter();
   } catch (err) {
     statusEl.textContent = "Couldn't read cookies for the current tab.";
@@ -234,6 +275,10 @@ async function init() {
     applyFilter();
   });
   document.getElementById("refresh").addEventListener("click", load);
+  document.getElementById("select-all").addEventListener("change", (event) => {
+    selection.setAll(currentCookies, event.target.checked);
+    applyFilter();
+  });
 
   // Restore persisted settings before the first load so the fetch uses them.
   const settings = await loadSettings();
