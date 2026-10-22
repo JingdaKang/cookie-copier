@@ -18,8 +18,9 @@ All notable changes to this project are documented here. The format follows
   be downloaded as files.
 - Settings (scope and sort) persist via `chrome.storage`.
 - Generated extension icons at 16/32/48/128 px.
-- Tooling: ESLint, Prettier, EditorConfig, a Node test suite, a CI workflow, and
-  a packaging script that builds the Web Store zip.
+- Tooling: ESLint, Prettier, EditorConfig, a Node test suite (helper unit tests
+  plus jsdom popup integration tests), a CI workflow, and a packaging script that
+  builds the Web Store zip.
 
 ## [0.1.0]
 

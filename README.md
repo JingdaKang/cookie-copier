@@ -38,7 +38,7 @@ A Chrome Manifest V3 extension that exports the active site’s cookies. It dete
 | `selection.js`      | Per-cookie selection model for partial export                        |
 | `icons/`            | Generated extension icons (see `scripts/make-icons.mjs`)             |
 | `scripts/`          | Icon generation and Web Store packaging                              |
-| `tests/`            | Node test-runner unit tests for the pure helpers                     |
+| `tests/`            | Unit tests for the helpers and jsdom integration tests for the popup |
 | `.github/workflows` | CI: lint, format check, and tests                                    |
 
 ## Permissions
@@ -56,7 +56,7 @@ npm install        # dev tooling only; the extension itself has no runtime deps
 
 npm run lint       # ESLint
 npm run format     # Prettier (write);  npm run format:check to verify
-npm test           # Node's built-in test runner
+npm test           # Node's built-in test runner (helper units + jsdom popup integration)
 npm run check      # lint + format check + tests (what CI runs)
 
 npm run icons      # regenerate icons/ from scripts/make-icons.mjs
