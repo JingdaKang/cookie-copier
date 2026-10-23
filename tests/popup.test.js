@@ -67,7 +67,8 @@ async function openPopup({ cookies = [], tabUrl = "https://www.example.com/", se
   };
 
   await import(`../popup.js?run=${runId++}`);
-  await waitFor(() => window.document.getElementById("status").textContent !== "");
+  // Wait until the initial load has replaced the "Loading…" placeholder.
+  await waitFor(() => window.document.getElementById("status").textContent !== "Loading cookies…");
 
   const $ = (id) => window.document.getElementById(id);
   const names = () =>

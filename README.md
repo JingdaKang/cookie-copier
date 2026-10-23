@@ -24,6 +24,9 @@ A Chrome Manifest V3 extension that exports the active site’s cookies. It dete
 2. Choose **Load unpacked** and select this repository directory.
 3. Click the extension to open its popup.
 
+For a full walkthrough of every control and export format, see the
+[usage guide](docs/USAGE.md).
+
 ## Project structure
 
 | Path                | Purpose                                                              |
@@ -38,6 +41,7 @@ A Chrome Manifest V3 extension that exports the active site’s cookies. It dete
 | `selection.js`      | Per-cookie selection model for partial export                        |
 | `icons/`            | Generated extension icons (see `scripts/make-icons.mjs`)             |
 | `scripts/`          | Icon generation and Web Store packaging                              |
+| `docs/`             | Usage guide                                                          |
 | `tests/`            | Unit tests for the helpers and jsdom integration tests for the popup |
 | `.github/workflows` | CI: lint, format check, and tests                                    |
 

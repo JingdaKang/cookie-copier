@@ -21,6 +21,12 @@ All notable changes to this project are documented here. The format follows
 - Tooling: ESLint, Prettier, EditorConfig, a Node test suite (helper unit tests
   plus jsdom popup integration tests), a CI workflow, and a packaging script that
   builds the Web Store zip.
+- Usage guide (`docs/USAGE.md`).
+
+### Changed
+
+- The filter box is focused when the popup opens, and the initial status text is
+  a neutral "Loading cookies…" placeholder.
 
 ## [0.1.0]
 
